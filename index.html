@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Помощник казино</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
@@ -37,8 +37,10 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      min-height: 100dvh;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
     }
 
     .view {
@@ -51,6 +53,38 @@
     .view.active {
       display: block;
       animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Специальный вид для слотов — на весь экран */
+    #view-slots {
+      padding: 0;
+      max-width: none;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+    }
+
+    #view-slots.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slots-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(11, 11, 15, 0.95);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .slots-iframe {
+      flex: 1;
+      width: 100%;
+      border: none;
+      background: #0a0a12;
     }
 
     @keyframes fadeUp {
@@ -138,6 +172,11 @@
     .game-card.enabled .icon-wrap {
       background: linear-gradient(145deg, #1e3a4f, #152a38);
       box-shadow: 0 0 20px rgba(42, 171, 238, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .game-card.slots-card.enabled .icon-wrap {
+      background: linear-gradient(145deg, #3a1e4f, #2a1538);
+      box-shadow: 0 0 20px rgba(176, 38, 255, 0.25), inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
     .game-card .title {
@@ -587,6 +626,7 @@
   </style>
 </head>
 <body>
+  <!-- ==================== МЕНЮ ==================== -->
   <div id="view-menu" class="view active">
     <div class="header">
       <div class="logo">🎰</div>
@@ -597,6 +637,7 @@
     <p class="disclaimer">Только в образовательных целях. Азартные игры связаны с риском.</p>
   </div>
 
+  <!-- ==================== БЛЭКДЖЕК ==================== -->
   <div id="view-blackjack" class="view">
     <div class="top-bar">
       <button class="back-btn" onclick="navigateTo('menu')">← Меню</button>
@@ -642,6 +683,22 @@
     <p class="disclaimer">Только в образовательных целях. Азартные игры связаны с риском.</p>
   </div>
 
+  <!-- ==================== СЛОТЫ ==================== -->
+  <div id="view-slots" class="view">
+    <div class="slots-topbar">
+      <button class="back-btn" onclick="navigateTo('menu')">← Меню</button>
+      <div style="font-weight:600;font-size:0.95rem;color:#fff;">Neon Slots 5</div>
+      <div style="width:80px;"></div>
+    </div>
+    <iframe 
+      id="slots-iframe"
+      class="slots-iframe" 
+      src="slots/index.html"
+      allow="autoplay"
+    ></iframe>
+  </div>
+
+  <!-- ==================== МОДАЛКА ==================== -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
     <div class="modal" id="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -654,6 +711,19 @@
 
   <script>
     const GAMES = {
+      slots: {
+        id: 'slots',
+        title: 'Neon Slots',
+        enabled: true,
+        icon: '🎰',
+        init: function () {
+          // Можно перезагрузить iframe при каждом заходе
+          const iframe = document.getElementById('slots-iframe');
+          if (iframe) {
+            // iframe.src = iframe.src; // раскомментируй, если хочешь сбрасывать игру
+          }
+        }
+      },
       blackjack: {
         id: 'blackjack',
         title: 'Помощник Блэкджека',
@@ -763,6 +833,7 @@
       try {
         tg.setHeaderColor('#0b0b0f');
         tg.setBackgroundColor('#0b0b0f');
+        tg.enableClosingConfirmation();
       } catch (e) {}
     }
 
@@ -791,13 +862,16 @@
 
     function navigateTo(viewId) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      
       if (viewId === 'menu') {
         document.getElementById('view-menu').classList.add('active');
         haptic('light');
         return;
       }
+      
       const game = GAMES[viewId];
       if (!game || !game.enabled) return;
+      
       const viewEl = document.getElementById('view-' + viewId);
       if (viewEl) {
         viewEl.classList.add('active');
@@ -809,15 +883,28 @@
     function buildMenu() {
       const grid = document.getElementById('games-grid');
       grid.innerHTML = '';
-      Object.values(GAMES).forEach(game => {
+      
+      // Порядок: сначала слоты, потом блэкджек
+      const order = ['slots', 'blackjack', 'roulette', 'baccarat'];
+      
+      order.forEach(id => {
+        const game = GAMES[id];
+        if (!game) return;
+        
         const card = document.createElement('div');
         card.className = 'game-card ' + (game.enabled ? 'enabled' : 'disabled');
+        if (id === 'slots') card.classList.add('slots-card');
+        
         card.innerHTML = `
           <div class="icon-wrap">${game.icon}</div>
           <div class="title">${game.title}</div>
           ${game.enabled ? '' : '<span class="badge">Скоро</span>'}
         `;
-        if (game.enabled) card.addEventListener('click', () => navigateTo(game.id));
+        
+        if (game.enabled) {
+          card.addEventListener('click', () => navigateTo(game.id));
+        }
+        
         grid.appendChild(card);
       });
     }
@@ -899,4 +986,4 @@
     buildMenu();
   </script>
 </body>
-</html>
+          </html>
