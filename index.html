@@ -7,18 +7,22 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg: var(--tg-theme-bg-color, #0e0e12);
-      --text: var(--tg-theme-text-color, #f5f5f7);
-      --hint: var(--tg-theme-hint-color, #8e8e93);
-      --button: var(--tg-theme-button-color, #2aabee);
-      --button-text: var(--tg-theme-button-text-color, #ffffff);
-      --secondary: var(--tg-theme-secondary-bg-color, #1c1c22);
+      --bg: #0b0b0f;
+      --bg-elevated: #13131a;
+      --card: #18181f;
+      --card-hover: #1f1f28;
+      --text: #f4f4f8;
+      --text-secondary: #a0a0b0;
+      --hint: #6e6e80;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.1);
+      --button: #2aabee;
+      --button-hover: #1e9ad9;
       --accent: #30d158;
       --danger: #ff453a;
       --warning: #ff9f0a;
-      --card: #1f1f27;
-      --border: rgba(255,255,255,0.10);
-      --radius: 16px;
+      --radius: 18px;
+      --radius-sm: 12px;
     }
 
     * {
@@ -29,7 +33,7 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -39,89 +43,101 @@
 
     .view {
       display: none;
-      padding: 20px 16px 40px;
+      padding: 24px 18px 48px;
       max-width: 440px;
       margin: 0 auto;
     }
 
     .view.active {
       display: block;
-      animation: fadeUp 0.28s ease;
+      animation: fadeUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ===== MENU ===== */
     .header {
       text-align: center;
-      padding: 16px 0 28px;
+      padding: 12px 0 32px;
     }
 
     .header .logo {
-      font-size: 2.8rem;
-      margin-bottom: 12px;
+      font-size: 3rem;
+      margin-bottom: 14px;
       line-height: 1;
+      filter: drop-shadow(0 4px 12px rgba(42, 171, 238, 0.25));
     }
 
     .header h1 {
-      font-size: 1.55rem;
+      font-size: 1.65rem;
       font-weight: 700;
-      letter-spacing: -0.4px;
-      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
       color: #ffffff;
     }
 
     .header p {
-      color: var(--hint);
-      font-size: 0.9rem;
-      line-height: 1.4;
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      line-height: 1.45;
     }
 
     .games-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 14px;
     }
 
     .game-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 10px 16px;
+      padding: 24px 14px 20px;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.12s ease, background 0.15s;
+      transition: transform 0.15s ease, background 0.15s, border-color 0.15s, box-shadow 0.15s;
       position: relative;
-      min-height: 140px;
+      min-height: 148px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
     .game-card.enabled:active {
       transform: scale(0.96);
-      background: #2a2a35;
+      background: var(--card-hover);
+      border-color: var(--border-strong);
+    }
+
+    .game-card.enabled {
+      border-color: rgba(42, 171, 238, 0.15);
     }
 
     .game-card.disabled {
-      opacity: 0.55;
+      opacity: 0.48;
       cursor: not-allowed;
     }
 
-    .game-card .icon {
-      font-size: 2.4rem;
-      line-height: 1;
-      color: #ffffff;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+    .game-card .icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #22222c, #1a1a22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
     }
 
-    .game-card.enabled .icon {
-      color: #ffffff;
+    .game-card.enabled .icon-wrap {
+      background: linear-gradient(145deg, #1e3a4f, #152a38);
+      box-shadow: 0 0 20px rgba(42, 171, 238, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
     }
 
     .game-card .title {
@@ -129,88 +145,96 @@
       font-weight: 600;
       letter-spacing: -0.2px;
       color: #ffffff;
-      line-height: 1.25;
-    }
-
-    .game-card.disabled .title {
-      color: #c8c8d0;
+      line-height: 1.3;
     }
 
     .badge {
       position: absolute;
-      top: 9px;
-      right: 9px;
-      background: var(--warning);
-      color: #000;
-      font-size: 0.62rem;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, #ffb340, #ff9f0a);
+      color: #1a1200;
+      font-size: 0.6rem;
       font-weight: 700;
-      padding: 3px 7px;
+      padding: 4px 8px;
       border-radius: 20px;
       text-transform: uppercase;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.3px;
+      box-shadow: 0 2px 8px rgba(255, 159, 10, 0.3);
     }
 
-    /* ===== BLACKJACK ===== */
     .top-bar {
       display: flex;
       align-items: center;
-      margin-bottom: 18px;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 10px;
     }
 
-    .back-btn {
+    .back-btn, .help-btn {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      background: var(--secondary);
+      gap: 6px;
+      background: var(--bg-elevated);
       border: 1px solid var(--border);
-      color: #ffffff;
+      color: var(--text-secondary);
       font-size: 0.9rem;
       font-weight: 500;
-      padding: 9px 14px;
-      border-radius: 10px;
+      padding: 10px 16px;
+      border-radius: 12px;
       cursor: pointer;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .back-btn:active {
-      opacity: 0.8;
+    .back-btn:active, .help-btn:active {
+      background: var(--card);
+      color: #ffffff;
+    }
+
+    .help-btn {
+      color: var(--button);
+      border-color: rgba(42, 171, 238, 0.25);
+      background: rgba(42, 171, 238, 0.08);
     }
 
     .screen-title {
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      margin-bottom: 18px;
-      letter-spacing: -0.3px;
+      margin-bottom: 20px;
+      letter-spacing: -0.4px;
       color: #ffffff;
     }
 
     .help-box {
-      background: var(--secondary);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 22px;
-      font-size: 0.82rem;
-      color: var(--hint);
-      line-height: 1.55;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
     }
 
     .help-box strong {
       color: #ffffff;
+      font-weight: 600;
     }
 
     .input-group {
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .label-row {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .label-row label {
-      font-size: 0.82rem;
-      color: var(--hint);
+      font-size: 0.84rem;
+      color: var(--text-secondary);
       font-weight: 500;
     }
 
@@ -218,10 +242,10 @@
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: var(--button);
-      color: var(--button-text);
-      border: none;
-      font-size: 0.8rem;
+      background: rgba(42, 171, 238, 0.15);
+      color: var(--button);
+      border: 1px solid rgba(42, 171, 238, 0.25);
+      font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -229,50 +253,52 @@
       justify-content: center;
       flex-shrink: 0;
       line-height: 1;
+      transition: background 0.15s;
     }
 
     .info-btn:active {
-      opacity: 0.75;
+      background: rgba(42, 171, 238, 0.3);
     }
 
     .input-group input {
       width: 100%;
-      background: var(--secondary);
+      background: var(--bg-elevated);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 15px 16px;
-      font-size: 1.2rem;
+      border-radius: var(--radius-sm);
+      padding: 16px 18px;
+      font-size: 1.15rem;
       font-weight: 500;
       color: #ffffff;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .input-group input:focus {
-      border-color: var(--button);
+      border-color: rgba(42, 171, 238, 0.5);
+      box-shadow: 0 0 0 3px rgba(42, 171, 238, 0.12);
     }
 
     .input-group input::placeholder {
       color: var(--hint);
-      opacity: 0.7;
+      opacity: 0.85;
       font-weight: 400;
     }
 
     .btn-row {
       display: flex;
-      gap: 10px;
-      margin: 20px 0 24px;
+      gap: 12px;
+      margin: 24px 0 28px;
     }
 
     .btn {
       flex: 1;
       border: none;
-      border-radius: 12px;
+      border-radius: var(--radius-sm);
       padding: 16px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.1s, opacity 0.15s;
+      transition: transform 0.12s, opacity 0.15s, background 0.15s;
     }
 
     .btn:active {
@@ -280,91 +306,287 @@
     }
 
     .btn-primary {
-      background: var(--button);
-      color: var(--button-text);
+      background: linear-gradient(180deg, #35b5f5 0%, #2aabee 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(42, 171, 238, 0.35);
+    }
+
+    .btn-primary:active {
+      background: var(--button-hover);
     }
 
     .btn-secondary {
-      background: var(--secondary);
-      color: #ffffff;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
       border: 1px solid var(--border);
+    }
+
+    .btn-secondary:active {
+      color: #ffffff;
+      background: var(--card);
     }
 
     .result-card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 22px 18px;
+      border-radius: var(--radius);
+      padding: 28px 20px 24px;
       display: none;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     .result-card.visible {
       display: block;
-      animation: fadeUp 0.3s ease;
+      animation: fadeUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .tc-value {
-      font-size: 2.6rem;
+      font-size: 3rem;
       font-weight: 800;
       text-align: center;
-      letter-spacing: -1px;
-      line-height: 1.1;
+      letter-spacing: -1.5px;
+      line-height: 1.05;
       color: #ffffff;
     }
 
     .tc-label {
       text-align: center;
       color: var(--hint);
-      font-size: 0.82rem;
-      margin: 4px 0 18px;
+      font-size: 0.8rem;
+      margin: 6px 0 20px;
       font-weight: 500;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
 
     .recommendation {
       text-align: center;
       font-size: 1.05rem;
       font-weight: 700;
-      padding: 13px 12px;
-      border-radius: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
       margin-bottom: 14px;
       letter-spacing: -0.2px;
     }
 
     .rec-risk {
-      background: rgba(48, 209, 88, 0.16);
+      background: rgba(48, 209, 88, 0.12);
       color: var(--accent);
+      border: 1px solid rgba(48, 209, 88, 0.2);
     }
 
     .rec-neutral {
-      background: rgba(255, 159, 10, 0.16);
+      background: rgba(255, 159, 10, 0.12);
       color: var(--warning);
+      border: 1px solid rgba(255, 159, 10, 0.2);
     }
 
     .rec-pass {
-      background: rgba(255, 69, 58, 0.16);
+      background: rgba(255, 69, 58, 0.12);
       color: var(--danger);
+      border: 1px solid rgba(255, 69, 58, 0.2);
     }
 
     .extra-tip {
       font-size: 0.84rem;
-      color: var(--hint);
+      color: var(--text-secondary);
       text-align: center;
-      line-height: 1.5;
+      line-height: 1.55;
+      padding: 0 4px;
     }
 
     .disclaimer {
       text-align: center;
       font-size: 0.7rem;
       color: var(--hint);
-      opacity: 0.7;
-      margin-top: 32px;
-      line-height: 1.4;
-      padding: 0 10px;
+      opacity: 0.75;
+      margin-top: 36px;
+      line-height: 1.45;
+      padding: 0 12px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px 24px 20px 20px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 85vh;
+      overflow-y: auto;
+      transform: translateY(40px);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px 12px;
+      position: sticky;
+      top: 0;
+      background: var(--card);
+      z-index: 2;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .modal-close:active {
+      background: var(--card-hover);
+      color: #ffffff;
+    }
+
+    .modal-body {
+      padding: 8px 20px 28px;
+    }
+
+    .modal-section {
+      margin-bottom: 22px;
+    }
+
+    .modal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-section h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .modal-section p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+
+    .modal-img {
+      width: 100%;
+      border-radius: 14px;
+      margin: 12px 0 4px;
+      display: block;
+      border: 1px solid var(--border);
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(42, 171, 238, 0.15);
+      color: var(--button);
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .example-box {
+      background: rgba(42, 171, 238, 0.08);
+      border: 1px solid rgba(42, 171, 238, 0.18);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+
+    .example-box .label {
+      font-size: 0.75rem;
+      color: var(--button);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+
+    .example-box p {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .tip-box {
+      background: rgba(255, 159, 10, 0.08);
+      border: 1px solid rgba(255, 159, 10, 0.18);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
-  <!-- MAIN MENU -->
   <div id="view-menu" class="view active">
     <div class="header">
       <div class="logo">🎰</div>
@@ -375,10 +597,10 @@
     <p class="disclaimer">Только в образовательных целях. Азартные игры связаны с риском.</p>
   </div>
 
-  <!-- BLACKJACK -->
   <div id="view-blackjack" class="view">
     <div class="top-bar">
       <button class="back-btn" onclick="navigateTo('menu')">← Меню</button>
+      <button class="help-btn" onclick="openModal('help')">Помощь</button>
     </div>
 
     <h2 class="screen-title">♠ Помощник Блэкджека</h2>
@@ -386,13 +608,13 @@
     <div class="help-box">
       <strong>Система Hi-Lo</strong><br>
       2–6 = <strong>+1</strong> &nbsp;·&nbsp; 7–9 = <strong>0</strong> &nbsp;·&nbsp; 10–Туз = <strong>−1</strong><br>
-      Считаете Running Count по ходу раздачи → делите на оставшиеся колоды = True Count
+      Считаете Running Count → делите на оставшиеся колоды = True Count
     </div>
 
     <div class="input-group">
       <div class="label-row">
         <label for="running-count">Running Count (текущий счёт)</label>
-        <button class="info-btn" onclick="showInfo('running')">!</button>
+        <button class="info-btn" onclick="openModal('running')">!</button>
       </div>
       <input type="number" id="running-count" placeholder="например 8 или -4" step="1" inputmode="numeric">
     </div>
@@ -400,7 +622,7 @@
     <div class="input-group">
       <div class="label-row">
         <label for="decks-remaining">Оставшиеся колоды</label>
-        <button class="info-btn" onclick="showInfo('decks')">!</button>
+        <button class="info-btn" onclick="openModal('decks')">!</button>
       </div>
       <input type="number" id="decks-remaining" placeholder="например 4.5" step="0.1" min="0.1" inputmode="decimal">
     </div>
@@ -420,25 +642,17 @@
     <p class="disclaimer">Только в образовательных целях. Азартные игры связаны с риском.</p>
   </div>
 
-  <script>
-    /*
-     * ============================================================
-     * КАК ДОБАВИТЬ НОВУЮ ИГРУ
-     * ============================================================
-     * 1. Добавь запись в объект GAMES:
-     *    newgame: {
-     *      id: 'newgame',
-     *      title: 'Название игры',
-     *      enabled: true,
-     *      icon: '🎲',
-     *      init: function () { ... }
-     *    }
-     * 2. Создай <div id="view-newgame" class="view">...</div>
-     * 3. Логику пиши внутри init()
-     * 4. Карточка в меню появится автоматически
-     * ============================================================
-     */
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" id="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-title">Заголовок</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
 
+  <script>
     const GAMES = {
       blackjack: {
         id: 'blackjack',
@@ -447,105 +661,143 @@
         icon: '♠️',
         init: function () {
           const saved = localStorage.getItem('blackjack_runningCount');
-          if (saved !== null) {
-            document.getElementById('running-count').value = saved;
-          }
+          if (saved !== null) document.getElementById('running-count').value = saved;
           setTimeout(() => {
             const el = document.getElementById('running-count');
             if (el && !el.value) el.focus();
           }, 200);
         }
       },
-      roulette: {
-        id: 'roulette',
-        title: 'Рулетка',
-        enabled: false,
-        icon: '🎡',
-        init: function () {}
+      roulette: { id: 'roulette', title: 'Рулетка', enabled: false, icon: '🎡', init: function () {} },
+      baccarat: { id: 'baccarat', title: 'Баккара', enabled: false, icon: '🃏', init: function () {} }
+    };
+
+    const MODALS = {
+      running: {
+        title: 'Running Count',
+        body: `
+          <div class="modal-section">
+            <h4>Что это?</h4>
+            <p>Текущий счёт — сумма всех открытых карт с начала шуза по системе <strong>Hi-Lo</strong>.</p>
+          </div>
+          <div class="modal-section">
+            <h4>Значения карт</h4>
+            <img class="modal-img" src="hilo.jpg" alt="Hi-Lo values">
+          </div>
+          <div class="modal-section">
+            <h4>Как считать</h4>
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-text">В начале шуза Running Count = 0</div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-text">Каждую открытую карту прибавляйте или вычитайте по таблице</div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-text">В любой момент можете ввести текущее значение в поле</div></div>
+            </div>
+          </div>
+          <div class="example-box">
+            <div class="label">Пример</div>
+            <p>Карты: 5 (+1), Король (−1), 3 (+1), 8 (0), Туз (−1)<br>
+            Running Count = +1 −1 +1 +0 −1 = <strong>0</strong></p>
+          </div>
+        `
       },
-      baccarat: {
-        id: 'baccarat',
-        title: 'Баккара',
-        enabled: false,
-        icon: '🃏',
-        init: function () {}
+      decks: {
+        title: 'Оставшиеся колоды',
+        body: `
+          <div class="modal-section">
+            <h4>Что вводить?</h4>
+            <p>Примерно сколько <strong>полных колод</strong> ещё осталось в шузе.</p>
+          </div>
+          <div class="modal-section">
+            <h4>Как оценить</h4>
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-text">В начале 6-колодного шуза → <strong>6</strong></div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-text">Осталось примерно половина → <strong>3</strong></div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-text">Осталась ~1 колода → <strong>1</strong> или <strong>1.5</strong></div></div>
+            </div>
+          </div>
+          <div class="example-box">
+            <div class="label">Точность</div>
+            <p>Достаточно оценивать с шагом 0.5. Приблизительная оценка уже даёт хороший True Count.</p>
+          </div>
+          <div class="tip-box">
+            <strong>Формула:</strong><br>
+            True Count = Running Count ÷ Оставшиеся колоды
+          </div>
+        `
+      },
+      help: {
+        title: 'Как пользоваться',
+        body: `
+          <div class="modal-section">
+            <h4>1. Система Hi-Lo</h4>
+            <p>Самая популярная система карточного счёта.</p>
+            <img class="modal-img" src="hilo.jpg" alt="Hi-Lo chart">
+          </div>
+          <div class="modal-section">
+            <h4>2. Как получается True Count</h4>
+            <img class="modal-img" src="scheme.jpg" alt="True Count scheme">
+          </div>
+          <div class="modal-section">
+            <h4>3. Рекомендации по True Count</h4>
+            <img class="modal-img" src="recs.jpg" alt="Recommendations">
+          </div>
+          <div class="modal-section">
+            <h4>Пошагово</h4>
+            <div class="step-list">
+              <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Считайте карты</strong> во время игры (Running Count).</div></div>
+              <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Оцените</strong>, сколько колод осталось в шузе.</div></div>
+              <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Введите</strong> оба числа и нажмите «Рассчитать».</div></div>
+              <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Следуйте рекомендации</strong> по ставке.</div></div>
+            </div>
+          </div>
+          <div class="tip-box">
+            Это образовательный инструмент. Настоящий карточный счёт требует практики и не гарантирует выигрыш. Играйте ответственно.
+          </div>
+        `
       }
     };
 
-    // ---------- Telegram ----------
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
       tg.expand();
       try {
-        tg.setHeaderColor(tg.themeParams.bg_color || '#0e0e12');
-        tg.setBackgroundColor(tg.themeParams.bg_color || '#0e0e12');
+        tg.setHeaderColor('#0b0b0f');
+        tg.setBackgroundColor('#0b0b0f');
       } catch (e) {}
-
-      if (tg.themeParams) {
-        const p = tg.themeParams;
-        const root = document.documentElement;
-        if (p.bg_color) root.style.setProperty('--tg-theme-bg-color', p.bg_color);
-        if (p.text_color) root.style.setProperty('--tg-theme-text-color', p.text_color);
-        if (p.hint_color) root.style.setProperty('--tg-theme-hint-color', p.hint_color);
-        if (p.button_color) root.style.setProperty('--tg-theme-button-color', p.button_color);
-        if (p.button_text_color) root.style.setProperty('--tg-theme-button-text-color', p.button_text_color);
-        if (p.secondary_bg_color) root.style.setProperty('--tg-theme-secondary-bg-color', p.secondary_bg_color);
-      }
     }
 
     function haptic(type = 'light') {
-      try {
-        tg?.HapticFeedback?.impactOccurred(type);
-      } catch (e) {}
+      try { tg?.HapticFeedback?.impactOccurred(type); } catch (e) {}
     }
 
     function showAlert(msg) {
-      if (tg?.showAlert) {
-        tg.showAlert(msg);
-      } else {
-        alert(msg);
-      }
+      if (tg?.showAlert) tg.showAlert(msg);
+      else alert(msg);
     }
 
-    // ---------- Пояснения по кнопке ! ----------
-    function showInfo(type) {
+    function openModal(type) {
+      const data = MODALS[type];
+      if (!data) return;
+      document.getElementById('modal-title').textContent = data.title;
+      document.getElementById('modal-body').innerHTML = data.body;
+      document.getElementById('modal-overlay').classList.add('open');
       haptic('light');
-      if (type === 'running') {
-        showAlert(
-          'Running Count (текущий счёт)\n\n' +
-          'Это суммарный счёт всех открытых карт по системе Hi-Lo:\n\n' +
-          '• Карты 2, 3, 4, 5, 6 → +1\n' +
-          '• Карты 7, 8, 9 → 0\n' +
-          '• 10, Валет, Дама, Король, Туз → −1\n\n' +
-          'Просто прибавляйте или вычитайте значение каждой карты по мере раздачи. В конце раунда (или когда хотите проверить) введите получившееся число.'
-        );
-      } else if (type === 'decks') {
-        showAlert(
-          'Оставшиеся колоды\n\n' +
-          'Укажите, сколько колод примерно ещё осталось в шузе.\n\n' +
-          'Примеры:\n' +
-          '• Полный шуз 6 колод → 6\n' +
-          '• Осталось чуть меньше половины из 6 → 2.5–3\n' +
-          '• Осталось около 1 колоды → 1 или 1.5\n\n' +
-          'Точность до 0.5 колоды уже хорошо работает.\nTrue Count = Running Count ÷ Оставшиеся колоды.'
-        );
-      }
     }
 
-    // ---------- Navigation ----------
+    function closeModal(e) {
+      if (e && e.target !== document.getElementById('modal-overlay') && e.type === 'click') return;
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+
     function navigateTo(viewId) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-
       if (viewId === 'menu') {
         document.getElementById('view-menu').classList.add('active');
         haptic('light');
         return;
       }
-
       const game = GAMES[viewId];
       if (!game || !game.enabled) return;
-
       const viewEl = document.getElementById('view-' + viewId);
       if (viewEl) {
         viewEl.classList.add('active');
@@ -554,31 +806,25 @@
       }
     }
 
-    // ---------- Build Menu ----------
     function buildMenu() {
       const grid = document.getElementById('games-grid');
       grid.innerHTML = '';
-
       Object.values(GAMES).forEach(game => {
         const card = document.createElement('div');
         card.className = 'game-card ' + (game.enabled ? 'enabled' : 'disabled');
         card.innerHTML = `
-          <div class="icon">${game.icon}</div>
+          <div class="icon-wrap">${game.icon}</div>
           <div class="title">${game.title}</div>
           ${game.enabled ? '' : '<span class="badge">Скоро</span>'}
         `;
-        if (game.enabled) {
-          card.addEventListener('click', () => navigateTo(game.id));
-        }
+        if (game.enabled) card.addEventListener('click', () => navigateTo(game.id));
         grid.appendChild(card);
       });
     }
 
-    // ---------- Blackjack Logic ----------
     function calculateTrueCount() {
       const rcRaw = document.getElementById('running-count').value.trim();
       const decksRaw = document.getElementById('decks-remaining').value.trim();
-
       const runningCount = parseFloat(rcRaw);
       const decksRemaining = parseFloat(decksRaw);
 
@@ -592,7 +838,6 @@
       }
 
       localStorage.setItem('blackjack_runningCount', runningCount);
-
       const trueCount = runningCount / decksRemaining;
       const tc = Math.round(trueCount * 10) / 10;
 
@@ -605,7 +850,6 @@
       tcEl.style.color = tc >= 2 ? 'var(--accent)' : tc <= -1 ? 'var(--danger)' : '#ffffff';
 
       let recClass, recText, tipText;
-
       if (tc >= 2) {
         recClass = 'rec-risk';
         recText = 'РИСК · Увеличить ставку';
@@ -623,18 +867,13 @@
       recEl.className = 'recommendation ' + recClass;
       recEl.textContent = recText;
       tipEl.textContent = tipText;
-
       resultCard.classList.add('visible');
       haptic('medium');
     }
 
     function getAdvancedTip(tc) {
-      if (tc >= 4) {
-        return 'Очень сильный счёт. Берите Insurance. Стойте на 16 против 10, удваивайте 9 против 2, 10 против Туза (Illustrious 18).';
-      }
-      if (tc >= 3) {
-        return 'Сильное преимущество. Можно брать Insurance. Ключевые отклонения: стоять на 16 vs 10, удваивать 10 vs Туз.';
-      }
+      if (tc >= 4) return 'Очень сильный счёт. Берите Insurance. Стойте на 16 против 10, удваивайте 9 против 2, 10 против Туза (Illustrious 18).';
+      if (tc >= 3) return 'Сильное преимущество. Можно брать Insurance. Ключевые отклонения: стоять на 16 vs 10, удваивать 10 vs Туз.';
       return 'Появилось преимущество игрока. Умеренно повышайте ставку и придерживайтесь базовой стратегии + простых отклонений.';
     }
 
@@ -646,25 +885,17 @@
       haptic('light');
     }
 
-    // ---------- Events ----------
     document.getElementById('calc-btn').addEventListener('click', calculateTrueCount);
     document.getElementById('reset-btn').addEventListener('click', resetCount);
 
     document.getElementById('running-count').addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('decks-remaining').focus();
-      }
+      if (e.key === 'Enter') { e.preventDefault(); document.getElementById('decks-remaining').focus(); }
     });
-
     document.getElementById('decks-remaining').addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        calculateTrueCount();
-      }
+      if (e.key === 'Enter') { e.preventDefault(); calculateTrueCount(); }
     });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-    // ---------- Init ----------
     buildMenu();
   </script>
 </body>
