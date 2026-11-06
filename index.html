@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Casino Helper</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg: var(--tg-theme-bg-color, #0e0e12);
+      --text: var(--tg-theme-text-color, #f5f5f7);
+      --hint: var(--tg-theme-hint-color, #8e8e93);
+      --button: var(--tg-theme-button-color, #2aabee);
+      --button-text: var(--tg-theme-button-text-color, #ffffff);
+      --secondary: var(--tg-theme-secondary-bg-color, #1c1c22);
+      --accent: #30d158;
+      --danger: #ff453a;
+      --warning: #ff9f0a;
+      --card: #18181f;
+      --border: rgba(255,255,255,0.07);
+      --radius: 14px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .view {
+      display: none;
+      padding: 20px 16px 40px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .view.active {
+      display: block;
+      animation: fadeUp 0.28s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== MENU ===== */
+    .header {
+      text-align: center;
+      padding: 20px 0 28px;
+    }
+
+    .header .logo {
+      font-size: 2.6rem;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+
+    .header h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      color: var(--hint);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .game-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 12px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s;
+      position: relative;
+      min-height: 128px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .game-card.enabled:active {
+      transform: scale(0.96);
+      background: #1f1f28;
+    }
+
+    .game-card.disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .game-card .icon {
+      font-size: 2.1rem;
+      line-height: 1;
+    }
+
+    .game-card .title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .badge {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      background: var(--warning);
+      color: #000;
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    /* ===== BLACKJACK ===== */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .back-btn:active {
+      opacity: 0.8;
+    }
+
+    .screen-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      letter-spacing: -0.3px;
+    }
+
+    .help-box {
+      background: var(--secondary);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 22px;
+      font-size: 0.82rem;
+      color: var(--hint);
+      line-height: 1.55;
+    }
+
+    .help-box strong {
+      color: var(--text);
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--hint);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .input-group input {
+      width: 100%;
+      background: var(--secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px 16px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--button);
+    }
+
+    .input-group input::placeholder {
+      color: var(--hint);
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0 24px;
+    }
+
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--button);
+      color: var(--button-text);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .result-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 18px;
+      display: none;
+    }
+
+    .result-card.visible {
+      display: block;
+      animation: fadeUp 0.3s ease;
+    }
+
+    .tc-value {
+      font-size: 2.6rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -1px;
+      line-height: 1.1;
+    }
+
+    .tc-label {
+      text-align: center;
+      color: var(--hint);
+      font-size: 0.82rem;
+      margin: 4px 0 18px;
+      font-weight: 500;
+    }
+
+    .recommendation {
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 13px 12px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      letter-spacing: -0.2px;
+    }
+
+    .rec-risk {
+      background: rgba(48, 209, 88, 0.14);
+      color: var(--accent);
+    }
+
+    .rec-neutral {
+      background: rgba(255, 159, 10, 0.14);
+      color: var(--warning);
+    }
+
+    .rec-pass {
+      background: rgba(255, 69, 58, 0.14);
+      color: var(--danger);
+    }
+
+    .extra-tip {
+      font-size: 0.84rem;
+      color: var(--hint);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--hint);
+      opacity: 0.65;
+      margin-top: 32px;
+      line-height: 1.4;
+      padding: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- MAIN MENU -->
+  <div id="view-menu" class="view active">
+    <div class="header">
+      <div class="logo">🎰</div>
+      <h1>Casino Helper</h1>
+      <p>Smart tools for serious players</p>
+    </div>
+    <div class="games-grid" id="games-grid"></div>
+    <p class="disclaimer">For educational purposes only. Gambling involves risk.</p>
+  </div>
+
+  <!-- BLACKJACK -->
+  <div id="view-blackjack" class="view">
+    <div class="top-bar">
+      <button class="back-btn" onclick="navigateTo('menu')">← Menu</button>
+    </div>
+
+    <h2 class="screen-title">♠ Blackjack Helper</h2>
+
+    <div class="help-box">
+      <strong>Hi-Lo System</strong><br>
+      2–6 = <strong>+1</strong> &nbsp;·&nbsp; 7–9 = <strong>0</strong> &nbsp;·&nbsp; 10–A = <strong>−1</strong><br>
+      Track Running Count → divide by decks left = True Count
+    </div>
+
+    <div class="input-group">
+      <label for="running-count">Running Count</label>
+      <input type="number" id="running-count" placeholder="e.g. 8 or -4" step="1" inputmode="numeric">
+    </div>
+
+    <div class="input-group">
+      <label for="decks-remaining">Decks Remaining</label>
+      <input type="number" id="decks-remaining" placeholder="e.g. 4.5" step="0.1" min="0.1" inputmode="decimal">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="calc-btn">Calculate</button>
+      <button class="btn btn-secondary" id="reset-btn">Reset</button>
+    </div>
+
+    <div class="result-card" id="result-card">
+      <div class="tc-value" id="true-count-value">0.0</div>
+      <div class="tc-label">True Count</div>
+      <div class="recommendation" id="recommendation"></div>
+      <div class="extra-tip" id="extra-tip"></div>
+    </div>
+
+    <p class="disclaimer">For educational purposes only. Gambling involves risk.</p>
+  </div>
+
+  <script>
+    /*
+     * ============================================================
+     * HOW TO ADD A NEW GAME
+     * ============================================================
+     * 1. Add entry to GAMES object:
+     *    newgame: {
+     *      id: 'newgame',
+     *      title: 'Game Name',
+     *      enabled: true,
+     *      icon: '🎲',
+     *      init: function () { ... }
+     *    }
+     * 2. Create <div id="view-newgame" class="view">...</div>
+     * 3. Put logic inside init()
+     * 4. Menu card is generated automatically
+     * ============================================================
+     */
+
+    const GAMES = {
+      blackjack: {
+        id: 'blackjack',
+        title: 'Blackjack Helper',
+        enabled: true,
+        icon: '♠',
+        init: function () {
+          const saved = localStorage.getItem('blackjack_runningCount');
+          if (saved !== null) {
+            document.getElementById('running-count').value = saved;
+          }
+          setTimeout(() => {
+            const el = document.getElementById('running-count');
+            if (el && !el.value) el.focus();
+          }, 200);
+        }
+      },
+      roulette: {
+        id: 'roulette',
+        title: 'Roulette',
+        enabled: false,
+        icon: '🎡',
+        init: function () {}
+      },
+      baccarat: {
+        id: 'baccarat',
+        title: 'Baccarat',
+        enabled: false,
+        icon: '🂡',
+        init: function () {}
+      }
+    };
+
+    // ---------- Telegram ----------
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor(tg.themeParams.bg_color || '#0e0e12');
+      tg.setBackgroundColor(tg.themeParams.bg_color || '#0e0e12');
+
+      if (tg.themeParams) {
+        const p = tg.themeParams;
+        const root = document.documentElement;
+        if (p.bg_color) root.style.setProperty('--tg-theme-bg-color', p.bg_color);
+        if (p.text_color) root.style.setProperty('--tg-theme-text-color', p.text_color);
+        if (p.hint_color) root.style.setProperty('--tg-theme-hint-color', p.hint_color);
+        if (p.button_color) root.style.setProperty('--tg-theme-button-color', p.button_color);
+        if (p.button_text_color) root.style.setProperty('--tg-theme-button-text-color', p.button_text_color);
+        if (p.secondary_bg_color) root.style.setProperty('--tg-theme-secondary-bg-color', p.secondary_bg_color);
+      }
+    }
+
+    function haptic(type = 'light') {
+      try {
+        tg?.HapticFeedback?.impactOccurred(type);
+      } catch (e) {}
+    }
+
+    function showAlert(msg) {
+      if (tg?.showAlert) {
+        tg.showAlert(msg);
+      } else {
+        alert(msg);
+      }
+    }
+
+    // ---------- Navigation ----------
+    function navigateTo(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+      if (viewId === 'menu') {
+        document.getElementById('view-menu').classList.add('active');
+        haptic('light');
+        return;
+      }
+
+      const game = GAMES[viewId];
+      if (!game || !game.enabled) return;
+
+      const viewEl = document.getElementById('view-' + viewId);
+      if (viewEl) {
+        viewEl.classList.add('active');
+        haptic('light');
+        if (typeof game.init === 'function') game.init();
+      }
+    }
+
+    // ---------- Build Menu ----------
+    function buildMenu() {
+      const grid = document.getElementById('games-grid');
+      grid.innerHTML = '';
+
+      Object.values(GAMES).forEach(game => {
+        const card = document.createElement('div');
+        card.className = 'game-card ' + (game.enabled ? 'enabled' : 'disabled');
+        card.innerHTML = `
+          <div class="icon">${game.icon}</div>
+          <div class="title">${game.title}</div>
+          ${game.enabled ? '' : '<span class="badge">Coming Soon</span>'}
+        `;
+        if (game.enabled) {
+          card.addEventListener('click', () => navigateTo(game.id));
+        }
+        grid.appendChild(card);
+      });
+    }
+
+    // ---------- Blackjack Logic ----------
+    function calculateTrueCount() {
+      const rcRaw = document.getElementById('running-count').value.trim();
+      const decksRaw = document.getElementById('decks-remaining').value.trim();
+
+      const runningCount = parseFloat(rcRaw);
+      const decksRemaining = parseFloat(decksRaw);
+
+      if (rcRaw === '' || isNaN(runningCount)) {
+        showAlert('Enter a valid Running Count (integer).');
+        return;
+      }
+      if (decksRaw === '' || isNaN(decksRemaining) || decksRemaining <= 0) {
+        showAlert('Decks Remaining must be a number greater than 0.');
+        return;
+      }
+
+      localStorage.setItem('blackjack_runningCount', runningCount);
+
+      const trueCount = runningCount / decksRemaining;
+      const tc = Math.round(trueCount * 10) / 10;
+
+      const resultCard = document.getElementById('result-card');
+      const tcEl = document.getElementById('true-count-value');
+      const recEl = document.getElementById('recommendation');
+      const tipEl = document.getElementById('extra-tip');
+
+      tcEl.textContent = (tc > 0 ? '+' : '') + tc.toFixed(1);
+      tcEl.style.color = tc >= 2 ? 'var(--accent)' : tc <= -1 ? 'var(--danger)' : 'var(--text)';
+
+      let recClass, recText, tipText;
+
+      if (tc >= 2) {
+        recClass = 'rec-risk';
+        recText = 'RISK · Increase Bet';
+        tipText = getAdvancedTip(tc);
+      } else if (tc > -1) {
+        recClass = 'rec-neutral';
+        recText = 'Neutral · Basic Strategy';
+        tipText = 'No clear edge. Play solid basic strategy and wait for a better count.';
+      } else {
+        recClass = 'rec-pass';
+        recText = 'PASS · Minimum Bet';
+        tipText = 'Casino has the edge. Reduce bets or sit out this shoe.';
+      }
+
+      recEl.className = 'recommendation ' + recClass;
+      recEl.textContent = recText;
+      tipEl.textContent = tipText;
+
+      resultCard.classList.add('visible');
+      haptic('medium');
+    }
+
+    function getAdvancedTip(tc) {
+      if (tc >= 4) {
+        return 'Very strong count. Take Insurance. Stand 16 vs 10, double 9 vs 2, double 10 vs A (Illustrious 18).';
+      }
+      if (tc >= 3) {
+        return 'Strong edge. Consider Insurance. Key deviations: stand on 16 vs 10, double 10 vs A.';
+      }
+      return 'Player edge appears. Raise bet size moderately and stick to basic strategy + simple deviations.';
+    }
+
+    function resetCount() {
+      document.getElementById('running-count').value = '';
+      document.getElementById('decks-remaining').value = '';
+      document.getElementById('result-card').classList.remove('visible');
+      localStorage.removeItem('blackjack_runningCount');
+      haptic('light');
+    }
+
+    // ---------- Events ----------
+    document.getElementById('calc-btn').addEventListener('click', calculateTrueCount);
+    document.getElementById('reset-btn').addEventListener('click', resetCount);
+
+    document.getElementById('running-count').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('decks-remaining').focus();
+      }
+    });
+
+    document.getElementById('decks-remaining').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        calculateTrueCount();
+      }
+    });
+
+    // ---------- Init ----------
+    buildMenu();
+  </script>
+</body>
+</html>
