@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a12" />
+  <title>Neon Slots 5</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="casino-bg">
+    <div class="particles" id="particles"></div>
+
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🎰</span>
+        <span class="logo-text">NEON<span class="gold">SLOTS</span> <span class="badge">5</span></span>
+      </div>
+      <div class="header-right">
+        <div class="free-spins-panel" id="freeSpinsPanel" style="display:none;">
+          <span class="fs-label">FREE SPINS</span>
+          <span class="fs-count" id="freeSpinsCount">0</span>
+        </div>
+        <div class="balance-panel">
+          <div class="balance-label">БАЛАНС</div>
+          <div class="balance-value" id="balance">1000</div>
+          <div class="currency">💎</div>
+        </div>
+        <button class="settings-btn" id="settingsBtn" title="Настройки">⚙️</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="slot-machine">
+        <div class="machine-top">
+          <div class="neon-sign">
+            <span>LUCKY</span>
+            <span class="gold-text">REELS</span>
+          </div>
+          <div class="lines-info" id="linesInfo">10 линий • 💎💎💎 = Free Spins</div>
+        </div>
+
+        <div class="reels-container">
+          <div class="reel-frame" id="reelFrame"></div>
+          <div class="paylines" id="paylinesContainer"></div>
+        </div>
+
+        <div class="machine-bottom">
+          <div class="bet-controls">
+            <button class="bet-btn" id="betMinus">−</button>
+            <div class="bet-display">
+              <span class="bet-label">СТАВКА</span>
+              <span class="bet-value" id="betValue">10</span>
+            </div>
+            <button class="bet-btn" id="betPlus">+</button>
+          </div>
+
+          <button class="spin-btn" id="spinBtn">
+            <span class="spin-text">SPIN</span>
+            <span class="spin-icon">⚡</span>
+          </button>
+
+          <div class="last-win" id="lastWin">
+            <span class="win-label">ВЫИГРЫШ</span>
+            <span class="win-amount" id="winAmount">0</span>
+          </div>
+        </div>
+
+        <div class="sound-toggle" id="soundToggle" title="Звук">🔊</div>
+      </div>
+
+      <div class="paytable">
+        <h3>Таблица выплат (за линию)</h3>
+        <div class="paytable-grid" id="paytable"></div>
+        <div class="bonus-info">
+          <strong>💎 × 3+</strong> в любом месте → <span class="gold">10 Free Spins</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- SETTINGS PANEL -->
+    <div class="settings-overlay" id="settingsOverlay">
+      <div class="settings-panel">
+        <div class="settings-header">
+          <h2>⚙️ Подкрутка казино</h2>
+          <button class="close-btn" id="closeSettings">✕</button>
+        </div>
+
+        <div class="settings-section">
+          <h3>Веса символов (чем выше — тем чаще)</h3>
+          <p class="hint-text">Меняй веса и жми «Применить».</p>
+          <div class="weights-grid" id="weightsGrid"></div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Быстрые пресеты</h3>
+          <div class="presets">
+            <button class="preset-btn" data-preset="normal">Обычный</button>
+            <button class="preset-btn" data-preset="loose">Щедрый</button>
+            <button class="preset-btn" data-preset="tight">Жадный</button>
+            <button class="preset-btn" data-preset="jackpot">Джекпоты</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Баланс</h3>
+          <div class="balance-edit">
+            <input type="number" id="editBalance" min="0" step="100" value="1000" />
+            <button class="apply-btn" id="setBalanceBtn">Установить</button>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button class="apply-btn primary" id="applyWeights">Применить веса</button>
+          <button class="apply-btn" id="resetWeights">Сброс</button>
+        </div>
+
+        <div class="rtp-info" id="rtpInfo">Примерный RTP: ~94%</div>
+      </div>
+    </div>
+
+    <div class="message-overlay" id="messageOverlay">
+      <div class="message-box" id="messageBox">
+        <div class="message-title" id="messageTitle"></div>
+        <div class="message-text" id="messageText"></div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <span>Neon Slots 5</span>
+      <span class="hint">Telegram Mini App</span>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
